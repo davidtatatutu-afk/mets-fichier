@@ -3,33 +3,80 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Texte avec Physique</title>
+<title>Site Officiel de David Alexandre</title>
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Monoton&display=swap');
+
     body {
         margin:0;
         padding:0;
-        font-family:Arial, sans-serif;
-        background:#111;
+        font-family:'Monoton', cursive;
+        background: url('https://cdn.jsdelivr.net/gh/davidtatatutu-afk/mets-fichier@main/image%20de%20fond%20.jpg') no-repeat center center fixed;
+        background-size: cover;
         color:white;
         overflow:hidden;
         cursor:grab;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        height:100vh;
+        user-select:none;
+        background-color: rgba(0,0,0,0.7);
+        background-blend-mode: multiply;
+    }
+    #frame {
+        background: linear-gradient(rgba(0,0,50,0.8), rgba(0,0,100,0.6));
+        padding:40px;
+        border-radius:20px;
+        backdrop-filter: blur(8px);
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        position:relative;
+        z-index:1;
+        box-shadow: 0 0 50px rgba(0,0,0,0.8);
     }
     #content {
-        font-size:3rem;
-        padding:40px;
+        font-size:2rem;
+        letter-spacing:5px;
         text-align:center;
         cursor:pointer;
+        transition: all 0.5s ease;
+        user-select:none;
     }
     .letter {
         position:absolute;
         display:inline-block;
         user-select:none;
-        font-size:3rem;
+        font-size:2rem;
+        text-shadow: 2px 2px 10px #000;
     }
-    .switch {
+    .floating {
+        position:absolute;
+        width:3px;
+        height:3px;
+        border-radius:50%;
+        background: rgba(255,255,255,0.9);
+        box-shadow: 0 0 5px #fff;
+        pointer-events:none;
+        animation: floatAnim 5s infinite;
+    }
+    @keyframes floatAnim {
+        0% { transform: translateY(0); }
+        50% { transform: translateY(-30px); }
+        100% { transform: translateY(0); }
+    }
+    .switch-container {
         position:fixed;
         top:20px;
         right:20px;
+        display:flex;
+        align-items:center;
+        font-size:1.2rem;
+        color:white;
+        gap:10px;
+    }
+    .switch {
         width:60px;
         height:30px;
         background:#555;
@@ -51,37 +98,82 @@
         justify-content:flex-end;
         background:#0fa;
     }
+    #sound-btn {
+        position:fixed;
+        top:70px;
+        right:20px;
+        padding:10px 20px;
+        background: rgba(0,0,50,0.7);
+        border: none;
+        color:white;
+        font-size:1rem;
+        cursor:pointer;
+        border-radius:10px;
+        box-shadow: 0 0 10px #000;
+    }
 </style>
 </head>
 <body>
-    <div class="switch" id="btn">
-        <div class="switch-circle"></div>
+    <div class="switch-container">
+        <div class="switch" id="btn">
+            <div class="switch-circle"></div>
+        </div>
+        <div>Gravité</div>
     </div>
-    <div id="content">Ceci est un texte normal… clique sur le switch !</div>
+    <button id="sound-btn">Couper la musique</button>
+    <div id="frame">
+        <div id="content">le site officiel de David Alexandre</div>
+    </div>
+
+<audio id="bg-music" loop>
+    <source src="https://cdn.jsdelivr.net/gh/davidtatatutu-afk/mets-fichier@main/musique/musiqque%20du%20site%20%20.mp3" type="audio/mpeg">
+    <source src="https://cdn.jsdelivr.net/gh/davidtatatutu-afk/mets-fichier@main/musique/musique%20du%20site%202.mp3" type="audio/mpeg">
+    <source src="https://cdn.jsdelivr.net/gh/davidtatatutu-afk/mets-fichier@main/musique/musique%20du%20site%203.mp3" type="audio/mpeg">
+    <source src="https://cdn.jsdelivr.net/gh/davidtatatutu-afk/mets-fichier@main/musique/musique%20du%20site%204.mp3" type="audio/mpeg">
+    <source src="https://cdn.jsdelivr.net/gh/davidtatatutu-afk/mets-fichier@main/musique/musique%20du%20site%205.mp3" type="audio/mpeg">
+    <source src="https://cdn.jsdelivr.net/gh/davidtatatutu-afk/mets-fichier@main/musique/musique%20du%20site%206.mp3" type="audio/mpeg">
+</audio>
 
 <script>
 let active = false;
 let letters = [];
-let gravity = 0.1; // gravité plus faible
+let floatingElements = [];
+let gravity = 0.05;
 let bounce = 0.7;
 let mouse = {x:0, y:0, pressed:false};
 let originalText = document.getElementById('content').innerText;
 let animationId = null;
 
 const content = document.getElementById("content");
+const frame = document.getElementById("frame");
 const btn = document.getElementById("btn");
-const switchCircle = btn.querySelector('.switch-circle');
+const music = document.getElementById("bg-music");
+const soundBtn = document.getElementById("sound-btn");
+
+music.volume = 0.5;
+music.play();
+
+soundBtn.onclick = () => {
+    if(music.paused){
+        music.play();
+        soundBtn.innerText = 'Couper la musique';
+    } else {
+        music.pause();
+        soundBtn.innerText = 'Remettre la musique';
+    }
+};
 
 function createLetters(){
-    letters = [];
+    if(letters.length > 0) return;
+    let text = originalText;
     content.innerText = "";
-    [...originalText].forEach((char, i) => {
+    [...text].forEach((char, i) => {
         let span = document.createElement("span");
         span.innerText = char;
         span.classList.add("letter");
 
-        let startX = window.innerWidth/2 - originalText.length*30 + i*60;
-        let startY = 150;
+        let startX = window.innerWidth/2 - text.length*20 + i*40;
+        let startY = window.innerHeight/2;
 
         span.style.left = startX + "px";
         span.style.top = startY + "px";
@@ -94,33 +186,46 @@ function createLetters(){
             y: startY,
             startX: startX,
             startY: startY,
-            vx: 0,
-            vy: 0,
+            vx: (Math.random()*2 -1),
+            vy: (Math.random()*-2),
             rot: 0,
-            vr: 0,
+            vr: (Math.random()*2 -1),
             radius: 25
         });
     });
 }
+
+function createFloatingElements(count){
+    for(let i=0;i<count;i++){
+        let div = document.createElement('div');
+        div.classList.add('floating');
+        div.style.left = Math.random()*window.innerWidth + 'px';
+        div.style.top = Math.random()*window.innerHeight + 'px';
+        document.body.appendChild(div);
+        floatingElements.push(div);
+    }
+}
+
+createFloatingElements(50);
 
 btn.onclick = () => {
     active = !active;
     btn.classList.toggle('active', active);
 
     if(active){
-        if(letters.length === 0){
-            createLetters();
-        }
+        createLetters();
+        frame.style.opacity = '0';
+        letters.forEach((L, i) => {
+            setTimeout(() => { L.vy = (Math.random()*-2); }, i*50);
+        });
         if(!animationId){ animate(); }
     } else {
         letters.forEach(L => {
-            L.vx = 0; L.vy = 0;
-            L.rot = 0;
-            L.x = L.startX; L.y = L.startY;
-            L.el.style.left = L.x + "px";
-            L.el.style.top = L.y + "px";
-            L.el.style.transform = `rotate(${L.rot}deg)`;
+            if(L.el) L.el.remove();
         });
+        letters = [];
+        frame.style.opacity = '1';
+        content.innerText = originalText;
     }
 };
 
@@ -131,7 +236,6 @@ document.addEventListener('mouseup', () => { mouse.pressed = false; });
 function animate() {
     animationId = requestAnimationFrame(animate);
 
-    // collisions entre lettres
     for(let i=0;i<letters.length;i++){
         for(let j=i+1;j<letters.length;j++){
             let A = letters[i];
