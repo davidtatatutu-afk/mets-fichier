@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Texte avec Physique</title>
+<style>
+    body {
+        margin:0;
+        padding:0;
+        font-family:Arial, sans-serif;
+        background:#111;
+        color:white;
+        overflow:hidden;
+        cursor:grab;
+    }
+    #content {
+        font-size:3rem;
+        padding:40px;
+        text-align:center;
+        cursor:pointer;
+    }
+    .letter {
+        position:absolute;
+        display:inline-block;
+        user-select:none;
+        font-size:3rem;
+    }
+    .switch {
+        position:fixed;
+        top:20px;
+        right:20px;
+        width:60px;
+        height:30px;
+        background:#555;
+        border-radius:15px;
+        cursor:pointer;
+        display:flex;
+        align-items:center;
+        padding:0 5px;
+        box-shadow:0 0 5px #0af;
+    }
+    .switch-circle {
+        width:25px;
+        height:25px;
+        background:#0af;
+        border-radius:50%;
+        transition:0.3s;
+    }
+    .switch.active {
+        justify-content:flex-end;
+        background:#0fa;
+    }
+</style>
+</head>
+<body>
+    <div class="switch" id="btn">
+        <div class="switch-circle"></div>
+    </div>
+    <div id="content">Ceci est un texte normal… clique sur le switch !</div>
+
+<script>
+let active = false;
+let letters = [];
+let gravity = 0.1; // gravité plus faible
+let bounce = 0.7;
+let mouse = {x:0, y:0, pressed:false};
+let originalText = document.getElementById('content').innerText;
+let animationId = null;
+
+const content = document.getElementById("content");
+const btn = document.getElementById("btn");
+const switchCircle = btn.querySelector('.switch-circle');
+
+function createLetters(){
+    letters = [];
+    content.innerText = "";
+    [...originalText].forEach((char, i) => {
+        let span = document.createElement("span");
+        span.innerText = char;
+        span.classList.add("letter");
+
+        let startX = window.innerWidth/2 - originalText.length*30 + i*60;
+        let startY = 150;
+
+        span.style.left = startX + "px";
+        span.style.top = startY + "px";
+
+        document.body.appendChild(span);
+
+        letters.push({
+            el: span,
+            x: startX,
+            y: startY,
+            startX: startX,
+            startY: startY,
+            vx: 0,
+            vy: 0,
+            rot: 0,
+            vr: 0,
+            radius: 25
+        });
+    });
+}
+
+btn.onclick = () => {
+    active = !active;
+    btn.classList.toggle('active', active);
+
+    if(active){
+        if(letters.length === 0){
+            createLetters();
+        }
+        if(!animationId){ animate(); }
+    } else {
+        letters.forEach(L => {
+            L.vx = 0; L.vy = 0;
+            L.rot = 0;
+            L.x = L.startX; L.y = L.startY;
+            L.el.style.left = L.x + "px";
+            L.el.style.top = L.y + "px";
+            L.el.style.transform = `rotate(${L.rot}deg)`;
+        });
+    }
+};
+
+document.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+document.addEventListener('mousedown', () => { mouse.pressed = true; });
+document.addEventListener('mouseup', () => { mouse.pressed = false; });
+
+function animate() {
+    animationId = requestAnimationFrame(animate);
+
+    // collisions entre lettres
+    for(let i=0;i<letters.length;i++){
+        for(let j=i+1;j<letters.length;j++){
+            let A = letters[i];
+            let B = letters[j];
+            let dx = B.x - A.x;
+            let dy = B.y - A.y;
+            let dist = Math.sqrt(dx*dx + dy*dy);
+            let minDist = A.radius + B.radius;
+            if(dist < minDist){
+                let angle = Math.atan2(dy, dx);
+                let targetX = A.x + Math.cos(angle) * minDist;
+                let targetY = A.y + Math.sin(angle) * minDist;
+                let ax = (targetX - B.x) * 0.2;
+                let ay = (targetY - B.y) * 0.2;
+                A.vx -= ax; A.vy -= ay;
+                B.vx += ax; B.vy += ay;
+            }
+        }
+    }
+
+    letters.forEach(L => {
+        if(active){ L.vy += gravity; }
+        L.x += L.vx; L.y += L.vy; L.rot += L.vr;
+
+        if(L.y + L.radius > window.innerHeight) { L.y = window.innerHeight - L.radius; L.vy *= -bounce; }
+        if(L.x < 0 || L.x > window.innerWidth - L.radius) { L.vx *= -1; }
+
+        if(mouse.pressed){
+            let dx = L.x - mouse.x;
+            let dy = L.y - mouse.y;
+            let dist = Math.sqrt(dx*dx + dy*dy);
+            if(dist < 100){ L.vx += dx/dist*0.2; L.vy += dy/dist*0.2; }
+        }
+
+        L.el.style.left = L.x + "px";
+        L.el.style.top = L.y + "px";
+        L.el.style.transform = `rotate(${L.rot}deg)`;
+    });
+}
+</script>
+</body>
+</html>
