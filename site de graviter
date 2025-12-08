@@ -7,6 +7,11 @@
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Monoton&display=swap');
 
+    :root{
+        --cursor-default: url('https://cdn.jsdelivr.net/gh/davidtatatutu-afk/mets-fichier@main/sourie/Sourie%201.png') 0 0, auto;
+        --cursor-click: url('https://cdn.jsdelivr.net/gh/davidtatatutu-afk/mets-fichier@main/sourie/Sourie%202.png') 0 0, pointer;
+    }
+
     body {
         margin:0;
         padding:0;
@@ -15,7 +20,7 @@
         background-size: cover;
         color:white;
         overflow:hidden;
-        cursor:grab;
+        cursor: var(--cursor-default);
         display:flex;
         justify-content:center;
         align-items:center;
@@ -25,7 +30,7 @@
         background-blend-mode: multiply;
     }
     #frame {
-        background: linear-gradient(rgba(0,0,50,0.8), rgba(0,0,100,0.6));
+        background: linear-gradient(rgba(0,0,50,0.85), rgba(0,0,100,0.65));
         padding:40px;
         border-radius:20px;
         backdrop-filter: blur(8px);
@@ -37,18 +42,18 @@
         box-shadow: 0 0 50px rgba(0,0,0,0.8);
     }
     #content {
-        font-size:2rem;
+        font-size:1.6rem;
         letter-spacing:5px;
         text-align:center;
-        cursor:pointer;
         transition: all 0.5s ease;
         user-select:none;
+        cursor: var(--cursor-click);
     }
     .letter {
         position:absolute;
         display:inline-block;
         user-select:none;
-        font-size:2rem;
+        font-size:1.6rem;
         text-shadow: 2px 2px 10px #000;
     }
     .floating {
@@ -66,78 +71,115 @@
         50% { transform: translateY(-30px); }
         100% { transform: translateY(0); }
     }
-    .switch-container {
+    .switch-container, .switch-sound-container, .switch-slime-container {
         position:fixed;
-        top:20px;
-        right:20px;
         display:flex;
         align-items:center;
-        font-size:1.2rem;
+        font-size:1.1rem;
         color:white;
         gap:10px;
+        z-index:2000;
     }
-    .switch {
+    .switch-container { top:20px; right:20px; }
+    .switch-sound-container { top:70px; right:20px; }
+    .switch-slime-container { top:120px; right:20px; }
+
+    .switch, .switch-sound, .switch-slime {
         width:60px;
         height:30px;
         background:#555;
         border-radius:15px;
-        cursor:pointer;
         display:flex;
         align-items:center;
         padding:0 5px;
         box-shadow:0 0 5px #0af;
+        cursor: var(--cursor-click);
     }
-    .switch-circle {
+    .switch-circle, .switch-sound-circle, .switch-slime-circle {
         width:25px;
         height:25px;
         background:#0af;
         border-radius:50%;
         transition:0.3s;
     }
-    .switch.active {
-        justify-content:flex-end;
-        background:#0fa;
+    .active { justify-content:flex-end; background:#0fa; }
+
+    .slime {
+        position:absolute;
+        width:50px;
+        height:50px;
+        pointer-events:none;
+        transform-origin:center;
+        animation: rotateSlime 6s linear infinite;
+        filter: drop-shadow(0 8px 12px rgba(0,0,0,0.7));
+        z-index:1500;
     }
-    #sound-btn {
+
+    .slime-cursor {
         position:fixed;
-        top:70px;
-        right:20px;
-        padding:10px 20px;
-        background: rgba(0,0,50,0.7);
-        border: none;
-        color:white;
-        font-size:1rem;
-        cursor:pointer;
-        border-radius:10px;
-        box-shadow: 0 0 10px #000;
+        width:40px;
+        height:40px;
+        pointer-events:none;
+        transform-origin:center;
+        animation: rotateSlime 6s linear infinite;
+        z-index:9999;
+        mix-blend-mode:screen;
     }
+
+    @keyframes rotateSlime {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    #frame:hover { cursor: var(--cursor-click); }
+
 </style>
 </head>
 <body>
     <div class="switch-container">
-        <div class="switch" id="btn">
+        <div class="switch" id="btn" role="button" tabindex="0">
             <div class="switch-circle"></div>
         </div>
         <div>Gravité</div>
     </div>
-    <button id="sound-btn">Couper la musique</button>
+    <div class="switch-sound-container">
+        <div class="switch-sound" id="sound-switch" role="button" tabindex="0">
+            <div class="switch-sound-circle"></div>
+        </div>
+        <div>Son</div>
+    </div>
+    <div class="switch-slime-container">
+        <div class="switch-slime" id="slime-switch" role="button" tabindex="0">
+            <div class="switch-slime-circle"></div>
+        </div>
+        <div>Slime</div>
+    </div>
+
     <div id="frame">
         <div id="content">le site officiel de David Alexandre</div>
     </div>
 
+<img id="slime-cursor" class="slime-cursor" src="https://cdn.jsdelivr.net/gh/davidtatatutu-afk/mets-fichier@main/element%201/slim%201.png" style="display:none;">
+
 <audio id="bg-music" loop>
     <source src="https://cdn.jsdelivr.net/gh/davidtatatutu-afk/mets-fichier@main/musique/musiqque%20du%20site%20%20.mp3" type="audio/mpeg">
-    <source src="https://cdn.jsdelivr.net/gh/davidtatatutu-afk/mets-fichier@main/musique/musique%20du%20site%202.mp3" type="audio/mpeg">
-    <source src="https://cdn.jsdelivr.net/gh/davidtatatutu-afk/mets-fichier@main/musique/musique%20du%20site%203.mp3" type="audio/mpeg">
-    <source src="https://cdn.jsdelivr.net/gh/davidtatatutu-afk/mets-fichier@main/musique/musique%20du%20site%204.mp3" type="audio/mpeg">
-    <source src="https://cdn.jsdelivr.net/gh/davidtatatutu-afk/mets-fichier@main/musique/musique%20du%20site%205.mp3" type="audio/mpeg">
-    <source src="https://cdn.jsdelivr.net/gh/davidtatatutu-afk/mets-fichier@main/musique/musique%20du%20site%206.mp3" type="audio/mpeg">
 </audio>
 
 <script>
+// --- SONS POUR SWITCHS (déclarés en sécurité sur window pour éviter double-déclaration) ---
+if(!window.__site_sndOn){
+    window.__site_sndOn = new Audio("https://cdn.jsdelivr.net/gh/davidtatatutu-afk/mets-fichier@main/effet/son%20bouton%20activer%20.mp3");
+}
+if(!window.__site_sndOff){
+    window.__site_sndOff = new Audio("https://cdn.jsdelivr.net/gh/davidtatatutu-afk/mets-fichier@main/effet/son%20bouton%20desactiver.mp3");
+}
+const sndOn = window.__site_sndOn;
+const sndOff = window.__site_sndOff;
+
 let active = false;
 let letters = [];
 let floatingElements = [];
+let slimes = [];
 let gravity = 0.05;
 let bounce = 0.7;
 let mouse = {x:0, y:0, pressed:false};
@@ -148,21 +190,95 @@ const content = document.getElementById("content");
 const frame = document.getElementById("frame");
 const btn = document.getElementById("btn");
 const music = document.getElementById("bg-music");
-const soundBtn = document.getElementById("sound-btn");
+const soundSwitch = document.getElementById("sound-switch");
+const slimeSwitch = document.getElementById("slime-switch");
+const slimeCursor = document.getElementById("slime-cursor");
 
+// Essayer de lancer la musique (peut être bloqué par navigateur sans interaction)
 music.volume = 0.5;
-music.play();
+try{ music.play(); }catch(e){}
 
-soundBtn.onclick = () => {
-    if(music.paused){
-        music.play();
-        soundBtn.innerText = 'Couper la musique';
+// play feedback sound helper
+function playFeedback(on){
+    try{
+        if(on){ sndOn.currentTime = 0; sndOn.play().catch(()=>{}); }
+        else { sndOff.currentTime = 0; sndOff.play().catch(()=>{}); }
+    } catch(e){ console.warn('sound play failed', e); }
+}
+
+// SWITCHS : on attache son et action à chaque switch individuellement
+btn.addEventListener('click', () => {
+    active = !active;
+    btn.classList.toggle('active', active);
+    playFeedback(active);
+
+    if(active){
+        createLetters();
+        frame.style.opacity = '0';
+        letters.forEach((L, i) => setTimeout(() => { L.vy = (Math.random()*-2); }, i*40));
+        if(!animationId){ animate(); }
     } else {
-        music.pause();
-        soundBtn.innerText = 'Remettre la musique';
+        letters.forEach(L => { if(L.el) L.el.remove(); });
+        letters = [];
+        frame.style.opacity = '1';
+        content.innerText = originalText;
     }
-};
+});
 
+soundSwitch.addEventListener('click', () => {
+    soundSwitch.classList.toggle('active');
+    const on = soundSwitch.classList.contains('active');
+    playFeedback(on);
+    if(on){ music.play().catch(()=>{}); } else { music.pause(); }
+});
+
+let slimeActive = false;
+slimeSwitch.addEventListener('click', () => {
+    slimeSwitch.classList.toggle('active');
+    slimeActive = slimeSwitch.classList.contains('active');
+    playFeedback(slimeActive);
+    slimeCursor.style.display = slimeActive ? 'block' : 'none';
+    if(!slimeActive){ slimes.forEach(s => s.remove()); slimes = []; }
+});
+
+// Curseur handling
+document.addEventListener('mouseenter', () => {
+    document.body.style.cursor = getComputedStyle(document.documentElement).getPropertyValue('--cursor-default').trim().replace(/\n/g,'');
+});
+
+document.addEventListener('mouseleave', () => {
+    document.body.style.cursor = 'auto';
+    slimeCursor.style.display = 'none';
+});
+
+// mousemove (fixed syntax error)
+document.addEventListener('mousemove', e => {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+    document.body.style.cursor = getComputedStyle(document.documentElement).getPropertyValue('--cursor-default').trim().replace(/\n/g,'');
+    if(slimeActive){
+        slimeCursor.style.left = (e.clientX - 20) + 'px';
+        slimeCursor.style.top = (e.clientY - 20) + 'px';
+        slimeCursor.style.display = 'block';
+    }
+});
+
+document.addEventListener('mousedown', e => {
+    mouse.pressed = true;
+    if(slimeActive){
+        let img = document.createElement('img');
+        img.src = 'https://cdn.jsdelivr.net/gh/davidtatatutu-afk/mets-fichier@main/element%201/slim%202.png';
+        img.classList.add('slime');
+        img.style.left = e.clientX - 25 + 'px';
+        img.style.top = e.clientY - 25 + 'px';
+        document.body.appendChild(img);
+        slimes.push(img);
+    }
+});
+
+document.addEventListener('mouseup', () => { mouse.pressed = false; });
+
+// Lettres & physics
 function createLetters(){
     if(letters.length > 0) return;
     let text = originalText;
@@ -171,27 +287,12 @@ function createLetters(){
         let span = document.createElement("span");
         span.innerText = char;
         span.classList.add("letter");
-
-        let startX = window.innerWidth/2 - text.length*20 + i*40;
+        let startX = window.innerWidth/2 - text.length*18 + i*36;
         let startY = window.innerHeight/2;
-
         span.style.left = startX + "px";
         span.style.top = startY + "px";
-
         document.body.appendChild(span);
-
-        letters.push({
-            el: span,
-            x: startX,
-            y: startY,
-            startX: startX,
-            startY: startY,
-            vx: (Math.random()*2 -1),
-            vy: (Math.random()*-2),
-            rot: 0,
-            vr: (Math.random()*2 -1),
-            radius: 25
-        });
+        letters.push({ el: span, x: startX, y: startY, startX: startX, startY: startY, vx: (Math.random()*2 -1), vy: (Math.random()*-2), rot: 0, vr: (Math.random()*2 -1), radius: 22 });
     });
 }
 
@@ -205,53 +306,22 @@ function createFloatingElements(count){
         floatingElements.push(div);
     }
 }
-
 createFloatingElements(50);
-
-btn.onclick = () => {
-    active = !active;
-    btn.classList.toggle('active', active);
-
-    if(active){
-        createLetters();
-        frame.style.opacity = '0';
-        letters.forEach((L, i) => {
-            setTimeout(() => { L.vy = (Math.random()*-2); }, i*50);
-        });
-        if(!animationId){ animate(); }
-    } else {
-        letters.forEach(L => {
-            if(L.el) L.el.remove();
-        });
-        letters = [];
-        frame.style.opacity = '1';
-        content.innerText = originalText;
-    }
-};
-
-document.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
-document.addEventListener('mousedown', () => { mouse.pressed = true; });
-document.addEventListener('mouseup', () => { mouse.pressed = false; });
 
 function animate() {
     animationId = requestAnimationFrame(animate);
 
     for(let i=0;i<letters.length;i++){
         for(let j=i+1;j<letters.length;j++){
-            let A = letters[i];
-            let B = letters[j];
-            let dx = B.x - A.x;
-            let dy = B.y - A.y;
-            let dist = Math.sqrt(dx*dx + dy*dy);
+            let A = letters[i]; let B = letters[j];
+            let dx = B.x - A.x; let dy = B.y - A.y; let dist = Math.sqrt(dx*dx + dy*dy);
             let minDist = A.radius + B.radius;
-            if(dist < minDist){
+            if(dist < minDist && dist>0.1){
                 let angle = Math.atan2(dy, dx);
                 let targetX = A.x + Math.cos(angle) * minDist;
                 let targetY = A.y + Math.sin(angle) * minDist;
-                let ax = (targetX - B.x) * 0.2;
-                let ay = (targetY - B.y) * 0.2;
-                A.vx -= ax; A.vy -= ay;
-                B.vx += ax; B.vy += ay;
+                let ax = (targetX - B.x) * 0.18; let ay = (targetY - B.y) * 0.18;
+                A.vx -= ax; A.vy -= ay; B.vx += ax; B.vy += ay;
             }
         }
     }
@@ -259,22 +329,24 @@ function animate() {
     letters.forEach(L => {
         if(active){ L.vy += gravity; }
         L.x += L.vx; L.y += L.vy; L.rot += L.vr;
-
         if(L.y + L.radius > window.innerHeight) { L.y = window.innerHeight - L.radius; L.vy *= -bounce; }
         if(L.x < 0 || L.x > window.innerWidth - L.radius) { L.vx *= -1; }
-
-        if(mouse.pressed){
-            let dx = L.x - mouse.x;
-            let dy = L.y - mouse.y;
-            let dist = Math.sqrt(dx*dx + dy*dy);
-            if(dist < 100){ L.vx += dx/dist*0.2; L.vy += dy/dist*0.2; }
-        }
-
-        L.el.style.left = L.x + "px";
-        L.el.style.top = L.y + "px";
-        L.el.style.transform = `rotate(${L.rot}deg)`;
+        if(mouse.pressed){ let dx = L.x - mouse.x; let dy = L.y - mouse.y; let dist = Math.sqrt(dx*dx + dy*dy); if(dist < 100){ L.vx += dx/dist*0.18; L.vy += dy/dist*0.18; }}
+        // interactions slime -> letters
+        slimes.forEach(s => {
+            let sRect = s.getBoundingClientRect();
+            let lRect = L.el.getBoundingClientRect();
+            let dx = (lRect.left + lRect.width/2) - (sRect.left + sRect.width/2);
+            let dy = (lRect.top + lRect.height/2) - (sRect.top + sRect.height/2);
+            let dist = Math.sqrt(dx*dx+dy*dy);
+            if(dist < L.radius + (sRect.width/2)){
+                if(dist!==0){ L.vx += dx/dist*0.6; L.vy += dy/dist*0.6; }
+            }
+        });
+        L.el.style.left = L.x + "px"; L.el.style.top = L.y + "px"; L.el.style.transform = `rotate(${L.rot}deg)`;
     });
 }
+
 </script>
 </body>
 </html>
